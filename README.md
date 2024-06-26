@@ -23,7 +23,7 @@ To work with the code, you just need to put the ```monatomic_replacement``` fold
 
 2. You can import the Morgan Types class, which makes it easy to find equivalent positions in a molecule, compare mol and smiles files for identity. Here are the main methods:
 
-2.1 Import modules:
+- Import modules:
 
 ```from monatomic_replacement import morgan_types```
 ```from rdkit import Chem```
@@ -32,7 +32,7 @@ To work with the code, you just need to put the ```monatomic_replacement``` fold
 
 ```mnt = morgan_types.MorganTypes(mol) # create MorganTypes objesct```
 
-2.2 If you need to compare the typological identity of atoms in a molecule, use the method:
+- If you need to compare the typological identity of atoms in a molecule, use the method:
 
 ```mnt.calc_morgan_weight()```
 
@@ -40,11 +40,11 @@ To work with the code, you just need to put the ```monatomic_replacement``` fold
 
 The numbers are the numbers of atoms in the mol file.
 
-2.3 To find all topologically identical atoms in a molecule, use the function:
+- To find all topologically identical atoms in a molecule, use the function:
 
 ```mnt.find_topology_indentical_atoms()```
 
-2.4 Mol files may differ in the order and coordinates of atoms, therefore, to determine the identity of molecules from mol files, Morgan types can be compared. To determine the Morgan type of molecule, use the function:
+- Mol files may differ in the order and coordinates of atoms, therefore, to determine the identity of molecules from mol files, Morgan types can be compared. To determine the Morgan type of molecule, use the function:
 
 ```mnt.calc_morgan_type()```
 

@@ -1,0 +1,52 @@
+displacement_sigma: 0.0333333
+ligand_charge: 0
+complex_charge: none
+pdb_file: 5TZW.pdb
+chain: [A]
+model_name: 5TZW
+ligand_name: 7P4
+output_path: 5TZWtrial
+nproccs: 24
+n_runs: 101
+calc_charge_method: v3
+metals: ["ZN", "CA", "NA", "HG", "MG", "FE"]
+remove_far_metals: False
+model_size: 5.5
+min_distance: 3.5
+displacement_module_protein_first: 1
+displacement_module_ligand_first: 1
+displacement_module_water_first: 1
+displacement_module_protein_second: 0.75
+displacement_module_ligand_second: 0.75
+displacement_module_water_second: 0.75
+remove_by_resname: [CL, PO4, SO4, GOL, MES, PEG, ACT, HOH, EDO, IPA]
+add_by_resnumber: [[A, 1002]]
+adding_atom_fixation: []
+removing_atom_fixation: []
+log_file_name: brsccp5TZW.log
+solvation: alpb  
+ligand_conformation_from_PDB: False
+calc_conf_crest: False
+rotate_cr3: True
+metals_bond_len: 2.5
+fix_gly: True
+random_speed: 42
+optimization_with_repl: True
+
+sphere_size_repl: 6.5
+calculation_from_heavy_atoms: True
+hbond_len: 0
+fix_n_bonds: True
+use_sobol: False
+opl: us6vsYBu2AG2QVZQgfqj
+
+metal_charges: {"FE": 2, "ZN": 2, "MG": 2, "NA": 1, "MG": 2, "NA": 1, "NA": 1}
+
+r_from_element: F
+r_to_element: H
+r_atom_name: F28
+r_resid: 1001
+r_resname: 7P4
+r_chain: A
+r_bond_length: 1.35
+model_name_after_repl: 5TZH

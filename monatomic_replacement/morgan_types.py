@@ -184,10 +184,9 @@ def remove_all_hydrogens(molecule):
 # This class was created to define Morgan types of atoms.
 #Using the functions of this class, you can create a graph of a molecule using a moll file
 class MorganTypes:
-    sum_of_types = 0
-    not_heavy_atoms = ["H", "F", "Cl", "Br", "I", "D"]
 
-    def __init__(self, m, removeH=False, StereoNone_cont=[]):
+
+    def __init__(self, m, removeH=False, StereoNone_cont=[], future_replacement=None): # Stereonone_cont - for old version
         
         # It's connected with ZE cstereochemistry and H atoms in resonance structures
         if removeH == True:
@@ -205,6 +204,8 @@ class MorganTypes:
         self.ist = {} # for induced stereochemistry
         self.mgc = {} 
         self.StereoNone_cont = StereoNone_cont
+        self.block = block
+        self.future_replacement = future_replacement
 
         for i in self.xyz.keys():
             self.mgc[i] = 0
@@ -217,12 +218,17 @@ class MorganTypes:
                 heavy_cont.append(i)
         return heavy_cont
 
-    def relative_atomic_configuration(self, atom, m):
+    def relative_atomic_configuration(self, atom, m): # future_replacement - exclusively for the BRSCCP program
+
+        ''' The function is designed to determine the induced stereochemistry in a molecule,
+            for example for the CH2F group. Depending on which atom of H to replace with X (!= F),
+            the configuration of the C atom will change. '''
+
         coordsys_cont = []
-        neighb = m 
+        neighb = m # neighbour atom
         if self.xyz[neighb][1] == "C":
             for neighb_C in self.graph[neighb].keys(): # we find all the neighbors with C
-                if neighb_C != atom: 
+                if neighb_C != atom and self.xyz[neighb_C][1] != self.future_replacement: 
                     coordsys_cont.append(neighb_C)
         if len(coordsys_cont) != 3:
             return 0
@@ -355,7 +361,6 @@ class MorganTypes:
 
             # We assign weights to atoms according to their mass in the periodic table
             for i in self.mgc.keys():
-                #self.mgc[i] += periodic_table(self.xyz[i][1], flag="r")
                 self.mgc[i] += round(get_atomic_weight(self.xyz[i][1]))
         return self.mgc
     
@@ -373,8 +378,7 @@ class MorganTypes:
 
     
     def find_topology_indentical_atoms(self):
-        if self.mgc == {}:
-            self.calc_morgan_weight()
+        # improve this funcion
         ident_cont = []
         atom_num_cont = list(self.mgc.keys())
         for atom in atom_num_cont:
@@ -388,7 +392,7 @@ class MorganTypes:
         return ident_cont
 
 
-    def calc_moran_type(self):
+    def calc_morgan_type(self):
         q = 0
         for i in self.calc_morgan_weight(k=10).keys():
             q += self.calc_morgan_weight(k=10)[i]

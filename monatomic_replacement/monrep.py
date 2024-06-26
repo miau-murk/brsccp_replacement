@@ -122,7 +122,7 @@ def replacement_yaml(original_file):
         new_file = original_file.split('.yaml')[0] + "_" + str(q+1) + '.yaml'
         YAMLrewrite(original_file, new_file, repl)
 
-##
+####
 
 def find_identical_atoms_v1(original_file): 
 
@@ -191,15 +191,135 @@ def find_identical_atoms_v1(original_file):
     
     return equiv_atoms_names
 
-def find_identical_atoms_v2(original_file):
-    pass
+
+def find_identical_atoms_v2(original_file): 
+   # read yaml file
+    input_file = read_input_file(original_file)
+    input_pdb = input_file["pdb_file"]
+    element_before = input_file["r_from_element"]
+    element_after = input_file["r_to_element"]
+    repl_residue = input_file["r_resid"]
+    ligand_name = input_file["r_resname"]
+    atom_name = input_file["r_atom_name"]
+    chain = input_file["r_chain"]
+    print(atom_name)
+
+    # read pdb and create mol file
+    pdb_to_mol(input_pdb, ligand_name, chain)
+
+
+    # find index of replaced atom
+    with open("ligand.pdb", 'r') as file:
+        pdb_lines = file.readlines()
+
+    # Extract the index of the atom named 'HP21'
+    index = find_index_by_atom(pdb_lines, atom_name)
+
+    # read mol file find topology identical atoms
+    mol = Chem.MolFromMolFile("ligand.mol", removeHs=False) # create mol object
+
+    Mol = MorganTypes(mol,removeH=False, future_replacement=element_after) # create MolTypes object with Hs
+    Mol.calc_morgan_weight()
+
+    # find replaced atom
+    equiv_atom_indeces = [] # lisst that contains equivalent atoms
+    for cort in Mol.find_topology_indentical_atoms():
+        if index in cort:
+            ind1, ind2 = cort[0], cort[1]
+            if ind1 != index:
+                equiv_atom_indeces.append(ind1)
+            else:
+                equiv_atom_indeces.append(ind2)
+
+    # find name of replaced atoms in pdb ligand files
+    equiv_atom_names = []
+    for ind in equiv_atom_indeces:
+        equiv_atom_names.append(find_atom_by_index(pdb_lines, ind))
+
+    os.remove("ligand.pdb")
+    os.remove("ligand.mol")
+
+    return equiv_atom_names
+
+
+def find_identical_atoms(original_file):
+    
+    # read yaml file
+    input_file = read_input_file(original_file)
+    input_pdb = input_file["pdb_file"]
+    element_before = input_file["r_from_element"]
+    element_after = input_file["r_to_element"]
+    repl_residue = input_file["r_resid"]
+    ligand_name = input_file["r_resname"]
+    atom_name = input_file["r_atom_name"]
+    chain = input_file["r_chain"]
+    print(atom_name)
+
+    # read pdb and create mol file
+    pdb_to_mol(input_pdb, ligand_name, chain)
+
+
+    # find index of replaced atom
+    with open("ligand.pdb", 'r') as file:
+        pdb_lines = file.readlines()
+
+    # Extract the index of the atom named 'HP21'
+    index = find_index_by_atom(pdb_lines, atom_name)
+
+    # read mol file find topology identical atoms
+    mol = Chem.MolFromMolFile("ligand.mol", removeHs=False) # create mol object
+
+    Mol = MorganTypes(mol,removeH=False) # create MolTypes object with Hs
+    Mol.calc_morgan_weight()
+    Mol2 = MorganTypes(mol,removeH=False, future_replacement=element_after) # create MolTypes object with Hs
+
+    # inherit weights
+    for atom in Mol.mgc.keys(): 
+        Mol2.mgc[atom] += Mol.mgc[atom]
+
+    # assign the Hs atom the weights of the atoms with which they are connected
+    for atom in Mol2.mgc.keys():
+        if Mol2.xyz[atom][1] == "H":
+            neighbor = next(iter(Mol2.graph[atom])) # find index of atom the C wich is connected with the atom H
+            Mol2.mgc[atom] += Mol2.mgc[neighbor] # assign the Hs atom the weight of neighbor
+
+
+    Mol2.calculation_induced_stereochemistry() # calculate induced streochemistry
+
+    # assign the induced streochemistry in Morgan's weights
+    for i in Mol2.mgc.keys():
+        Mol2.mgc[i] += Mol2.ist[i]
+
+    # find replaced atom
+    equiv_atom_indeces = [] # lisst that contains equivalent atoms
+    for cort in Mol2.find_topology_indentical_atoms():
+        ind1, ind2 = cort[0], cort[1]
+        if index in cort:
+            if ind1 != index:
+                equiv_atom_indeces.append(ind1)
+            else:
+                equiv_atom_indeces.append(ind2)
+        
+        # check for resonance
+        if len(Mol2.graph[ind1]) != len(Mol2.graph[ind2]): 
+            if index in Mol2.graph[ind1].keys():
+                equiv_atom_indeces.append(ind2)
+            elif index in Mol2.graph[ind2].keys():
+                equiv_atom_indeces.append(ind2)
+            else: None
+            
+    # find name of replaced atoms in pdb ligand files
+    equiv_atoms_names = []
+    for ind in equiv_atom_indeces:
+        equiv_atoms_names.append(find_atom_by_index(pdb_lines, ind))
+    
+    #os.remove("ligand.pdb")
+    #os.remove("ligand.mol")
+
+    
+    return equiv_atoms_names
+
 
 def find_all_identical_atoms(input_pdb_file):
     pass
 
-
-
-
-
-# read input YAML file
-#original_file = sys.argv[1]

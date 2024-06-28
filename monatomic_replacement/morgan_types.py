@@ -66,16 +66,17 @@ def find_coord_orientation(a:list):
         return 50
     else:
         return 100
+    
 
-def sorting(a):
-	N = len(a)
-	for i in range(0, N-1):
-		for j in range(0, N-i-1):
-			if a[j] == a[j+1]:
-				return []
-			elif a[j] < a[j+1]:
-				a[j], a[j+1] = a[j+1], a[j]
-	return a
+def sort_or_clean(lst):
+    # Check if there are any identical elements in the list
+    if len(lst) == len(set(lst)):
+        # No identical elements, sort the list
+        return sorted(lst)
+    else:
+        # Identical elements present, clean the list
+        return []
+
 
 
 def contains_hydrogen(mol):
@@ -238,7 +239,7 @@ class MorganTypes:
             w3 = self.mgc[coordsys_cont[2]]
 
             W = [w1, w2, w3]
-            WW = sorting(W)
+            WW = sort_or_clean(W)
 
             if WW != []:
                 n1 = W.index(WW[0]) # index of the heaviest group
